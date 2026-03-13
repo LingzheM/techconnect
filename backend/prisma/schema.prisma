@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  username String @unique
+  password String
+  avatarUrl String?
+  bio String?
+  createdAt DateTime @default(now())
+
+  posts Post[]
+  likes Like[]
+  comments Comment[]
+
+  following Follow[] @relation("follower")
+  followers Follow[] @relation("following")
+}
+
+model Post {
+  id String @id @default(cuid())
+  content String
+  imageUrls String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId String
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  likes Like[]
+  comments Comment[]
+  likeCount Int @default(0)
+
+  @@index([authorId, createdAt(sort: Desc)])
+}
+
+model Like {
+  userId String
+  postId String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+}
+
+model Comment {
+  id String @id @default(cuid())
+  content String
+  createdAt DateTime @default(now())
+
+  authorId String
+  postId String
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt(sort:Desc)])
+}
+
+model Follow {
+  followerId String
+  followingId String
+  createdAt DateTime @default(now())
+
+  follower User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+}
