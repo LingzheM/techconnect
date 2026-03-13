@@ -38,6 +38,16 @@ jobs:
         run: npm ci
         working-directory: backend
       
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: backend
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://techconnect:techconnect@localhost:5433/techconnect_test
+
       - name: Run tests
         run: npm test
         working-directory: backend
