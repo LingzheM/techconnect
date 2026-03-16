@@ -9,7 +9,8 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'lcov'],
         },
-        // 集成测试
+        // 集成测试共享同一个数据库，必须串行跑，否则 beforeEach 互相干扰
+        fileParallelism: false,
         pool: 'forks',
         poolOptions: {
             forks: { singleFork: true }
