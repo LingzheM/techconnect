@@ -1,11 +1,15 @@
 import { Hono } from 'hono'
 import authRoutes from './modules/auth/auth.routes'
 import postRoutes from './modules/post/post.routes'
+import likeRoutes from './modules/like/like.routes'
+import followRoutes from './modules/follow/follow.routes'
 
 const app = new Hono()
 
 app.route('/auth', authRoutes)
 app.route('/posts', postRoutes)
+app.route('/posts', likeRoutes)
+app.route('/users', followRoutes)
 
 app.get('/health', (c) => c.json({ status: 'ok' }))
 
