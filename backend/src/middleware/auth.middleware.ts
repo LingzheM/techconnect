@@ -7,6 +7,10 @@ export type AuthVariables = {
   userId: string
 }
 
+export type OptionalAuthVariables = {
+  userId: string | undefined
+}
+
 export const authMiddleware = createMiddleware<{ Variables: AuthVariables }>(async (c, next) => {
   const authHeader = c.req.header('Authorization')
 
@@ -21,6 +25,21 @@ export const authMiddleware = createMiddleware<{ Variables: AuthVariables }>(asy
     c.set('userId', payload.userId)
   } catch {
     return c.json({ error: 'Unauthorized' }, 401)
+  }
+
+  await next()
+})
+
+export const optionalAuthMiddleware = createMiddleware<{ Variables: OptionalAuthVariables }>(async (c, next) => {
+  const authHeader = c.req.header('Authorization')
+
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const payload = jwt.verify(authHeader.slice(7), JWT_SECRET) as { userId: string }
+      c.set('userId', payload.userId)
+    } catch {
+      // invalid token → treat as unauthenticated
+    }
   }
 
   await next()

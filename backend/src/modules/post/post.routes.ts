@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import z from 'zod'
-import { authMiddleware, AuthVariables } from '../../middleware/auth.middleware'
+import { authMiddleware, optionalAuthMiddleware, AuthVariables, OptionalAuthVariables } from '../../middleware/auth.middleware'
 import { PostService } from './post.service'
 
 const createPostSchema = z.object({
@@ -8,6 +8,7 @@ const createPostSchema = z.object({
 })
 
 const app = new Hono<{ Variables: AuthVariables }>()
+const publicApp = new Hono<{ Variables: OptionalAuthVariables }>()
 
 app.post('/', authMiddleware, async (c) => {
   const result = createPostSchema.safeParse(await c.req.json())
@@ -37,12 +38,22 @@ app.delete('/:id', authMiddleware, async (c) => {
   }
 })
 
-app.get('/', async (c) => {
+publicApp.get('/', optionalAuthMiddleware, async (c) => {
   const limit = Math.min(Number(c.req.query('limit') ?? 10), 50)
   const cursor = c.req.query('cursor') ?? null
+  const feed = c.req.query('feed')
+  const userId = c.get('userId')
+
+  if (feed === 'following') {
+    if (!userId) return c.json({ error: 'Unauthorized' }, 401)
+    const result = await PostService.getFollowingFeed({ userId, limit, cursor })
+    return c.json(result)
+  }
 
   const result = await PostService.getFeed({ limit, cursor })
   return c.json(result)
 })
 
+
+app.route('/', publicApp)
 export default app

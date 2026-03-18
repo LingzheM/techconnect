@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, expectTypeOf } from 'vitest'
 import { prisma } from '../../lib/prisma'
 import { PostService } from './post.service'
 
@@ -131,5 +131,58 @@ describe('PostService.getFeed', () => {
     expect(posts[0].author).toBeDefined()
     expect(posts[0].author.username).toBe('iris')
     expect((posts[0].author as any).password).toBeUndefined()
+  })
+})
+
+describe('PostService.getFollowingFeed', () => {
+  it('should return only posts from followed users', async () => {
+    const viewer = await makeUser('jack')
+    const followed = await makeUser('kate')
+    const stranger = await makeUser('leo')
+
+    await prisma.follow.create({ data: {followerId: viewer.id, followingId: followed.id} })
+
+    await PostService.create({ authorId: followed.id, content: 'From followed' })
+    await PostService.create({ authorId: stranger.id, content: 'From stranger' })
+
+    const { posts } = await PostService.getFollowingFeed({ userId: viewer.id, limit: 10 })
+  
+
+    expect(posts).toHaveLength(1)
+    expect(posts[0].content).toBe('From followed')
+  })
+
+  it('should return empty when the user follows nobody', async () => {
+    const viewer = await makeUser('mia')
+    const other  = await makeUser('ned')
+    await PostService.create({ authorId: other.id, content: 'Invisible' })
+
+    const { posts, hasMore, nextCursor } = await PostService.getFollowingFeed({ userId: viewer.id, limit: 10 })
+
+    expect(posts).toHaveLength(0)
+    expect(hasMore).toBe(false)
+    expect(nextCursor).toBeNull()
+  })
+
+  it('should support cursor-based pagination', async () => {
+    const viewer   = await makeUser('olivia')
+    const followed = await makeUser('pete')
+
+    await prisma.follow.create({ data: { followerId: viewer.id, followingId: followed.id } })
+
+    for (let i = 1; i <= 4; i++) {
+      await PostService.create({ authorId: followed.id, content: `Post ${i}` })
+    }
+
+    const first  = await PostService.getFollowingFeed({ userId: viewer.id, limit: 3 })
+    const second = await PostService.getFollowingFeed({ userId: viewer.id, limit: 3, cursor: first.nextCursor! })
+
+    expect(first.posts).toHaveLength(3)
+    expect(first.hasMore).toBe(true)
+    expect(second.posts).toHaveLength(1)
+    expect(second.hasMore).toBe(false)
+
+    const allIds = [...first.posts, ...second.posts].map((p) => p.id)
+    expect(new Set(allIds).size).toBe(4)
   })
 })

@@ -148,3 +148,39 @@ describe('GET /posts', () => {
     expect(typeof body.nextCursor).toBe('string')
   })
 })
+
+// ── GET /posts?feed=following ───────────────────────────────────────────────
+
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET ?? 'fallback-secret'
+const authHeader = (userId: string) => ({
+  Authorization: `Bearer ${jwt.sign({ userId }, JWT_SECRET)}`,
+})
+
+describe('GET /posts?feed=following', () => {
+  it('should return 401 when not logged in', async () => {
+    const res = await get('/posts?feed=following')
+    const body = await res.json()
+
+    expect(res.status).toBe(401)
+    expect(body.error).toBeDefined()
+  })
+
+  it('should return only posts from followed users', async () => {
+    const viewer   = await prisma.user.create({ data: { email: 'v@t.com', username: 'viewer',   password: 'x' } })
+    const followed = await prisma.user.create({ data: { email: 'f@t.com', username: 'followed', password: 'x' } })
+    const stranger = await prisma.user.create({ data: { email: 's@t.com', username: 'stranger', password: 'x' } })
+
+    await prisma.follow.create({ data: { followerId: viewer.id, followingId: followed.id } })
+    await prisma.post.create({ data: { authorId: followed.id, content: 'From followed' } })
+    await prisma.post.create({ data: { authorId: stranger.id, content: 'From stranger' } })
+
+    const res  = await app.request('/posts?feed=following', { headers: authHeader(viewer.id) })
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.posts).toHaveLength(1)
+    expect(body.posts[0].content).toBe('From followed')
+  })
+})

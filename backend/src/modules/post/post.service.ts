@@ -21,6 +21,12 @@ type GetFeedInput = {
   cursor?: string | null
 }
 
+type GetFollowingFeedInput = {
+  userId: string
+  limit: number
+  cursor?: string | null
+}
+
 export const PostService = {
   async create({ authorId, content }: CreateInput) {
     if (!content) throw new Error('Content is required')
@@ -44,6 +50,24 @@ export const PostService = {
     const posts = await prisma.post.findMany({
       take: limit + 1,
       where: cursor ? { createdAt: { lt: new Date(cursor) } } : undefined,
+      orderBy: { createdAt: 'desc' },
+      include: { author: { select: authorSelect } },
+    })
+
+    const hasMore = posts.length > limit
+    const page = hasMore ? posts.slice(0, limit) : posts
+    const nextCursor = hasMore ? page[page.length - 1].createdAt.toISOString() : null
+
+    return { posts: page, hasMore, nextCursor }
+  },
+
+  async getFollowingFeed({ userId, limit, cursor }: GetFollowingFeedInput) {
+    const posts = await prisma.post.findMany({
+      take: limit + 1,
+      where: {
+        ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
+        author: { followers: { some: { followerId: userId } } },
+      },
       orderBy: { createdAt: 'desc' },
       include: { author: { select: authorSelect } },
     })
