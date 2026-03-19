@@ -2,12 +2,14 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { server } from '../test/server'
 import { client } from './client'
+import { useAuthStore } from '../stores/authStore'
 
 const BASE = 'http://localhost:3000'
 
 describe('api client', () => {
   beforeEach(() => {
     localStorage.clear()
+    useAuthStore.setState({ token: null, user: null })
   })
 
   it('should send requests without Authorization header when no token is stored', async () => {
@@ -25,7 +27,7 @@ describe('api client', () => {
   })
 
   it('should attach Bearer token from localStorage when present', async () => {
-    localStorage.setItem('token', 'my-test-token')
+    useAuthStore.setState({ token: 'my-test-token'})
     let capturedAuth: string | null = null
 
     server.use(

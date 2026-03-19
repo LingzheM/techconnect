@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { AuthUser } from '../api/auth'
+import { persist } from 'zustand/middleware'
 
 type AuthState = {
   token: string | null
@@ -8,17 +9,14 @@ type AuthState = {
   logout: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  token: localStorage.getItem('token'),
-  user: null,
-
-  setAuth: (token, user) => {
-    localStorage.setItem('token', token)
-    set({ token, user })
-  },
-
-  logout: () => {
-    localStorage.removeItem('token')
-    set({ token: null, user: null })
-  },
-}))
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      token: null,
+      user: null,
+      setAuth: (token, user) => set({ token, user }),
+      logout: () => set({ token: null, user: null }),
+    }),
+    { name: 'auth-storage' }
+  )
+)

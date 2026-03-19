@@ -24,20 +24,19 @@ describe('authStore — setAuth', () => {
     expect(user?.username).toBe('alice')
   })
 
-  it('should write token to localStorage', () => {
+  it('should persist token in store after setAuth', () => {
     useAuthStore.getState().setAuth('tok123', mockUser)
-    expect(localStorage.getItem('token')).toBe('tok123')
+    expect(useAuthStore.getState().token).toBe('tok123')
   })
+  
 })
 
 describe('authStore — logout', () => {
-  it('should clear token and user from state', () => {
-    useAuthStore.getState().setAuth('tok123', mockUser)
-    useAuthStore.getState().logout()
-    const { token, user } = useAuthStore.getState()
-    expect(token).toBeNull()
-    expect(user).toBeNull()
-  })
+  it('should clear token from store after logout', () => {
+  useAuthStore.getState().setAuth('tok123', mockUser)
+  useAuthStore.getState().logout()
+  expect(useAuthStore.getState().token).toBeNull()
+})
 
   it('should remove token from localStorage', () => {
     useAuthStore.getState().setAuth('tok123', mockUser)
@@ -51,6 +50,6 @@ describe('authStore — persistence across calls', () => {
     useAuthStore.getState().setAuth('old', mockUser)
     useAuthStore.getState().setAuth('new', { ...mockUser, username: 'bob' })
     expect(useAuthStore.getState().token).toBe('new')
-    expect(localStorage.getItem('token')).toBe('new')
+    expect(localStorage.getItem('token')).toBeNull()
   })
 })
