@@ -8,6 +8,7 @@ type FeedState = {
   isLoading: boolean
   loadFeed: (reset?: boolean) => Promise<void>
   loadMore: () => Promise<void>
+  removePost: (postId: string) => void
 }
 
 export const useFeedStore = create<FeedState>((set, get) => ({
@@ -51,5 +52,9 @@ export const useFeedStore = create<FeedState>((set, get) => ({
     } catch {
       set({ isLoading: false })
     }
+  },
+
+  removePost: (postId) => {
+    set(state => ({ posts: state.posts.filter(p => p.id !== postId) }))
   },
 }))

@@ -59,3 +59,10 @@
 - `/api/auth`的`login`函数（`vi.mock`）
 - `react-router-dom`的`useNavigate`（或者用`MemoryRouter`包裹）
 - `authStore`用`useLikeStore.setState`
+
+## PostCard（无限滚动）
+
+## 方案A：监听scroll事件
+
+
+## 方案B：Intersection Observer

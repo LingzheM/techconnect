@@ -122,3 +122,58 @@ describe('feedStore - loadMore', () => {
         expect(postApi.getFeed).not.toHaveBeenCalled()
     })
 })
+
+describe('feedStore - removePost', () => {
+    it('should remove the post with the given id from posts', () => {
+        useFeedStore.setState({ posts: [mockPost('p1'), mockPost('p2'), mockPost('p3')] })
+
+        useFeedStore.getState().removePost('p2')
+
+        const { posts } = useFeedStore.getState()
+        expect(posts).toHaveLength(2)
+        expect(posts.find(p => p.id === 'p2')).toBeUndefined()
+    })
+
+    it('should leave other posts untouched', () => {
+        useFeedStore.setState({ posts: [mockPost('p1'), mockPost('p2')] })
+        useFeedStore.getState().removePost('p1')
+
+        expect(useFeedStore.getState().posts[0].id).toBe('p2')
+    })
+
+    it('should do nothing when id does not exist', () => {
+        useFeedStore.setState({ posts: [mockPost('p1')] })
+
+        useFeedStore.getState().removePost('non-existent')
+
+        expect(useFeedStore.getState().posts).toHaveLength(1)
+    })
+})
+// ---removePost---
+describe('feedStore - removePost', () => {
+    it('should remove the post with the given id from posts', () => {
+        useFeedStore.setState({ posts: [mockPost('p1'), mockPost('p2'), mockPost('p3')] })
+
+        useFeedStore.getState().removePost('p2')
+
+        const { posts } = useFeedStore.getState()
+        expect(posts).toHaveLength(2)
+        expect(posts.find(p => p.id === 'p2')).toBeUndefined()
+    })
+
+    it('should leave other posts untouched', () => {
+        useFeedStore.setState({ posts: [mockPost('p1'), mockPost('p2')] })
+
+        useFeedStore.getState().removePost('p1')
+
+        expect(useFeedStore.getState().posts[0].id).toBe('p2')
+    })
+
+    it('should do nothing when id does not exist', () => {
+        useFeedStore.setState({ posts: [mockPost('p1')] })
+
+        useFeedStore.getState().removePost('non-existent')
+
+        expect(useFeedStore.getState().posts).toHaveLength(1)
+    })
+})
