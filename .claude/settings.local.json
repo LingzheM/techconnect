@@ -2,6 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx vitest:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\User\\2026-Q1\\dev-projects\\techconnect\\frontend\\src\\pages"
     ]
   }
 }

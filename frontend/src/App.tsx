@@ -1,34 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
+import { FeedPage } from './pages/FeedPage'
+import { ProfilePage } from './pages/ProfilePage'
+import './index.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-50 text-gray-900">
+        <Routes>
+          <Route path="/" element={<FeedPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile/:userId" element={<ProfilePage />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </BrowserRouter>
   )
 }
 
