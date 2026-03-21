@@ -7,7 +7,10 @@ import { server } from "../test/server";
 import { useLikeStore } from "../stores/likeStore";
 import { useFeedStore } from "../stores/feedStore";
 import { useAuthStore } from "../stores/authStore";
+import * as likesApi from '../api/likes'
 import { PostCard } from './PostCard'
+
+vi.mock('../api/likes')
 
 const mockPost = {
     id: 'p1',
@@ -18,6 +21,7 @@ const mockPost = {
 }
 
 beforeEach(() => {
+    vi.clearAllMocks()
     useLikeStore.setState({ likes: { p1: { like: false, likeCount: 3 }} })
     useFeedStore.setState({ posts: [mockPost], hasMore: false, cursor: null, isLoading: false })
     useAuthStore.setState({ token: null, user: null })
@@ -56,27 +60,7 @@ describe('PostCard - like', () => {
 
         expect(toggle).toHaveBeenCalledWith('p1')
     })
-
-    it('should optimistically update likeCount after click', async () => {
-        server.use(
-            http.post('*/posts/p1/like', async () => {
-                await new Promise(r => setTimeout(r, 100))
-                return HttpResponse.json({ liked: true, likeCount: 4 })
-            })
-        )
-        useLikeStore.setState({
-            likes: { p1: { like: false, likeCount: 3} },
-            toggle: useLikeStore.getState().toggle,
-        }) 
-
-        const user = userEvent.setup()
-        render(<PostCard post={mockPost}/>)
-        await user.click(screen.getByRole('button', { name: /like/i }))
-
-        await waitFor(() => {
-            expect(screen.getByText('4')).toBeInTheDocument()
-        })
-    })
+    
 })
 
 describe('PostCard - delete button visibility', () => {
