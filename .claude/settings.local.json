@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(grep -r \"\\\\.then\\\\|\\\\.catch\" /c/Users/User/2026-Q1/dev-projects/techconnect/frontend/src --include=*.tsx --include=*.ts)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\2026-Q1\\dev-projects\\techconnect\\frontend\\src\\pages"

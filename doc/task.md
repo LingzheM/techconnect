@@ -68,6 +68,8 @@
 ✅ 点赞toggle
 ✅ 关注/取关toggle
 ✅ 个人主页数据
+✅ 种子数据脚本
+
 
 ## 前端
 
@@ -76,6 +78,11 @@
 ✅ feedStore
 ✅ likeStore
 ✅ LoginPage/ReigsterPage
+✅ FeedPage+无限滚动 （P0优先级）
+✅ PostCard组件（P0优先级）
+✅ LikeButton更新（P0优先级）
+✅ Tailwind样式/响应式
+
 
 # 未完成
 
@@ -86,13 +93,8 @@
 
 ## 前端
 
-⏯️ FeedPage+无限滚动 （P0优先级）
-⏯️ PostCard组件（P0优先级）
-⏯️ LikeButton更新（P0优先级）
 ⏯️ ProfilePage
 ⏯️ profileStore
-⏯️ Tailwind样式/响应式
-⏯️ 种子数据脚本
 ⏯️ Comment UI
 ⏯️ 搜索UI
 
