@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useFeedStore } from '../stores/feedStore'
 import { useAuthStore } from '../stores/authStore'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
@@ -7,9 +8,14 @@ export function FeedPage() {
     const posts = useFeedStore(s => s.posts)
     const hasMore = useFeedStore(s => s.hasMore)
     const isLoading = useFeedStore(s => s.isLoading)
+    const loadFeed = useFeedStore(s => s.loadFeed)
     const loadMore = useFeedStore(s => s.loadMore)
     const currentUser = useAuthStore(s => s.user)
     const logout = useAuthStore(s => s.logout)
+
+    useEffect(() => {
+        loadFeed()
+    }, [loadFeed])
 
     const sentinelRef = useInfiniteScroll(() => {
         if (!isLoading) loadMore()
